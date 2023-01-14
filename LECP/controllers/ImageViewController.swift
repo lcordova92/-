@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SkeletonView
 
 class ImageViewController: UIViewController {
 
@@ -16,7 +17,12 @@ class ImageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        userImageView.loadFromUrl(url: URL(string: imageUrl)!)
+        userImageView.isSkeletonable = true
+        userImageView.showAnimatedGradientSkeleton()
+        
+        DispatchQueue.global().async {
+            self.userImageView.loadFromUrl(url: URL(string: self.imageUrl)!)
+        }
         // Do any additional setup after loading the view.
     }
 

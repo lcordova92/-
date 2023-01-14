@@ -7,6 +7,8 @@
 
 import Foundation
 import UIKit
+import SkeletonView
+import MapKit
 
 class ViewController: UIViewController {
     
@@ -48,7 +50,13 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
         
         callAPI()
+        
+        setUpSkeleton()
+        setAnimation()
     }
+    
+    
+
     
     
     func callAPI(){
@@ -64,11 +72,12 @@ class ViewController: UIViewController {
 
              if let data = data{
                  do{
-                     let register = try decoder.decode(User.self, from: data)
+                     let user = try decoder.decode(User.self, from: data)
                      
-                     DispatchQueue.main.async {
+                     DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                          
-                         self.loadInfo(user: register)
+                         self.stopAnimation()
+                         self.loadInfo(user: user)
                      }
 
                  }catch{
@@ -93,7 +102,7 @@ class ViewController: UIViewController {
         self.streetLabel.text = user.results[0].location.street.name! + " " + user.results[0].location.street.number!.description
         self.cityLabel.text = user.results[0].location.city
         self.stateLabel.text = user.results[0].location.state
-        self.coordinatesLabel.text = user.results[0].location.coordinates.latitude
+        self.coordinatesLabel.text = user.results[0].location.coordinates.latitude! + " " + user.results[0].location.coordinates.longitude!
         self.countryLabel.text = user.results[0].location.country
         self.postCodeLabel.text = user.results[0].location.postCode?.description ?? "N/A"
         self.timeZoneLabel.text = user.results[0].location.timezone.description! + " " + user.results[0].location.timezone.offset!
@@ -105,8 +114,10 @@ class ViewController: UIViewController {
         self.sha1Label.text = user.results[0].login.sha1
         self.sha256Label.text = user.results[0].login.sha256
         
-        self.urlImage = user.results[0].picture.large!
-        self.userImageViewImage.loadFromUrl(url: URL(string: user.results[0].picture.medium!)!)
+        DispatchQueue.global().async {
+            self.urlImage = user.results[0].picture.large!
+            self.userImageViewImage.loadFromUrl(url: URL(string: user.results[0].picture.medium!)!)
+        }
     }
     
     
@@ -119,7 +130,75 @@ class ViewController: UIViewController {
         if(segue.identifier == "goToImage"){
             let vc = segue.destination as! ImageViewController
             vc.imageUrl = self.urlImage
+            
         }
+    }
+    
+    func setAnimation(){
+        nameLabel.showAnimatedGradientSkeleton()
+        dobLabel.showAnimatedGradientSkeleton()
+        registeredLabel.showAnimatedGradientSkeleton()
+        phoneLabel.showAnimatedGradientSkeleton()
+        cellLabel.showAnimatedGradientSkeleton()
+        ageLabel.showAnimatedGradientSkeleton()
+        stateLabel.showAnimatedGradientSkeleton()
+        cityLabel.showAnimatedGradientSkeleton()
+        streetLabel.showAnimatedGradientSkeleton()
+        natLabel.showAnimatedGradientSkeleton()
+        dniLabel.showAnimatedGradientSkeleton()
+        emailLabel.showAnimatedGradientSkeleton()
+        countryLabel.showAnimatedGradientSkeleton()
+        coordinatesLabel.showAnimatedGradientSkeleton()
+        postCodeLabel.showAnimatedGradientSkeleton()
+        genderLabel.showAnimatedGradientSkeleton()
+        uudiLabel.showAnimatedGradientSkeleton()
+        timeZoneLabel.showAnimatedGradientSkeleton()
+        userImageViewImage.showAnimatedGradientSkeleton()
+    }
+    
+    func stopAnimation(){
+        nameLabel.hideSkeleton()
+        dobLabel.hideSkeleton()
+        registeredLabel.hideSkeleton()
+        phoneLabel.hideSkeleton()
+        cellLabel.hideSkeleton()
+        ageLabel.hideSkeleton()
+        stateLabel.hideSkeleton()
+        cityLabel.hideSkeleton()
+        streetLabel.hideSkeleton()
+        natLabel.hideSkeleton()
+        dniLabel.hideSkeleton()
+        emailLabel.hideSkeleton()
+        countryLabel.hideSkeleton()
+        coordinatesLabel.hideSkeleton()
+        postCodeLabel.hideSkeleton()
+        genderLabel.hideSkeleton()
+        uudiLabel.hideSkeleton()
+        timeZoneLabel.hideSkeleton()
+    }
+    
+    func setUpSkeleton(){
+        nameLabel.isSkeletonable = true
+        dobLabel.isSkeletonable = true
+        registeredLabel.isSkeletonable = true
+        phoneLabel.isSkeletonable = true
+        cellLabel.isSkeletonable = true
+        ageLabel.isSkeletonable = true
+        stateLabel.isSkeletonable = true
+        cityLabel.isSkeletonable = true
+        streetLabel.isSkeletonable = true
+        natLabel.isSkeletonable = true
+        dniLabel.isSkeletonable = true
+        emailLabel.isSkeletonable = true
+        countryLabel.isSkeletonable = true
+        coordinatesLabel.isSkeletonable = true
+        postCodeLabel.isSkeletonable = true
+        genderLabel.isSkeletonable = true
+        uudiLabel.isSkeletonable = true
+        timeZoneLabel.isSkeletonable = true
+        userImageViewImage.isSkeletonable = true
+        
+        
     }
     
     
@@ -127,15 +206,15 @@ class ViewController: UIViewController {
 
 extension UIImageView{
     func loadFromUrl(url: URL){
-        DispatchQueue.global().async {
-            if let data = try? Data(contentsOf: url){
-                if let image = UIImage(data: data){
-                    DispatchQueue.main.async {
-                        self.image = image
-                    }
+        if let data = try? Data(contentsOf: url){
+            if let imageUrl = UIImage(data: data){
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self.image = imageUrl
+                    self.hideSkeleton()
                 }
             }
-        }
+      }
     }
 }
+
 
